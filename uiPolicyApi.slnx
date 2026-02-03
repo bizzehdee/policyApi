@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="uiPolicyApi.Data/uiPolicyApi.Data.csproj" />
+  <Project Path="uiPolicyApi.Implementation.Tests/uiPolicyApi.Implementation.Tests.csproj" />
+  <Project Path="uiPolicyApi.Implementation/uiPolicyApi.Implementation.csproj" />
+  <Project Path="uiPolicyApi.SDK/uiPolicyApi.SDK.csproj" />
+  <Project Path="uiPolicyApi/uiPolicyApi.csproj" />
+</Solution>
