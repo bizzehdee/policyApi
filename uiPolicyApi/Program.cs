@@ -1,3 +1,5 @@
+using uiPolicyApi.Data.Repositories;
+
 namespace uiPolicyApi;
 
 public class Program
@@ -11,6 +13,14 @@ public class Program
         builder.Services.AddControllers();
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
+
+        // Register MediatR
+        builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(uiPolicyApi.Implementation.Handlers.CreatePolicyCommandHandler).Assembly));
+        
+        // Register repositories
+        builder.Services.AddScoped<IPolicyRepository, PolicyRepository>();
+        builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+        builder.Services.AddScoped<IQuoteRepository, QuoteRepository>();
 
         var app = builder.Build();
 

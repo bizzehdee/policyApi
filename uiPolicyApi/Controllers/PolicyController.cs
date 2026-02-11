@@ -1,5 +1,7 @@
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using uiPolicyApi.SDK.Services;
+using uiPolicyApi.SDK.Commands;
+using uiPolicyApi.SDK.Queries;
 
 namespace uiPolicyApi.Controllers;
 
@@ -7,13 +9,11 @@ namespace uiPolicyApi.Controllers;
 [Route("[controller]")]
 public class PolicyController : ControllerBase
 {
-    private readonly IPolicyService _policyService;
-    private readonly IQuoteService _quoteService;
+    private readonly IMediator _mediator;
 
-    public PolicyController(IPolicyService policyService, IQuoteService quoteService)
+    public PolicyController(IMediator mediator)
     {
-        _policyService = policyService;
-        _quoteService = quoteService;
+        _mediator = mediator;
     }
     
     [HttpGet("{policyId}")]
@@ -21,14 +21,14 @@ public class PolicyController : ControllerBase
     {
         // validate the user has access to the policy
         // if not, return Unauthorized();
-        var accessResult = await _policyService.IsPolicyAssociatedWithUserAsync(policyId, /* get user id from context */ 0);
+        var accessResult = await _mediator.Send(new IsPolicyAssociatedWithUserQuery(policyId, /* get user id from context */ 0));
         if (!accessResult.Success || !accessResult.Result)
         {
             return Unauthorized();
         }
         
         // otherwise, get the policy details
-        var policyResult = await _policyService.GetPolicyDetailsAsync(policyId);
+        var policyResult = await _mediator.Send(new GetPolicyDetailsQuery(policyId));
         if (policyResult.Success)
         {
             return Ok(policyResult.Result);
@@ -44,14 +44,14 @@ public class PolicyController : ControllerBase
         // if not, return Unauthorized();
         
         // otherwise, get the quote details and create the policy
-        var quoteResult = await _quoteService.GetQuoteDetailsAsync(quoteId);
+        var quoteResult = await _mediator.Send(new GetQuoteDetailsQuery(quoteId));
         if (!quoteResult.Success)
         {
             return BadRequest(quoteResult.Message);
         }
 
         // create the policy
-        var policyResult = await _policyService.CreatePolicyAsync(quoteResult.Result);
+        var policyResult = await _mediator.Send(new CreatePolicyCommand(quoteResult.Result));
         if (policyResult.Success)
         {
             return Ok(policyResult.Result);
@@ -65,14 +65,14 @@ public class PolicyController : ControllerBase
     {
         // validate the user has access to the quote
         // if not, return Unauthorized();
-        var accessResult = await _policyService.IsPolicyAssociatedWithUserAsync(policyId, /* get user id from context */ 0);
+        var accessResult = await _mediator.Send(new IsPolicyAssociatedWithUserQuery(policyId, /* get user id from context */ 0));
         if (!accessResult.Success || !accessResult.Result)
         {
             return Unauthorized();
         }
         
         // otherwise, attempt to renew the policy
-        var renewalResult = await _policyService.RenewPolicyAsync(policyId);
+        var renewalResult = await _mediator.Send(new RenewPolicyCommand(policyId));
         if (renewalResult.Success)
         {
             return Ok(renewalResult.Result);
@@ -86,19 +86,19 @@ public class PolicyController : ControllerBase
     {
         // validate the user has access to the quote
         // if not, return Unauthorized();
-        var accessResult = await _policyService.IsPolicyAssociatedWithUserAsync(policyId, /* get user id from context */ 0);
+        var accessResult = await _mediator.Send(new IsPolicyAssociatedWithUserQuery(policyId, /* get user id from context */ 0));
         if (!accessResult.Success || !accessResult.Result)
         {
             return Unauthorized();
         }
         
         // otherwise, attempt to cancel the policy
-        var renewalResult = await _policyService.CancelPolicyAsync(policyId);
-        if (renewalResult.Success)
+        var cancelResult = await _mediator.Send(new CancelPolicyCommand(policyId));
+        if (cancelResult.Success)
         {
-            return Ok(renewalResult.Result);
+            return Ok(cancelResult.Result);
         }
         
-        return BadRequest(renewalResult.Message);
+        return BadRequest(cancelResult.Message);
     }
 }

@@ -11,4 +11,8 @@
       <ProjectReference Include="..\uiPolicyApi.SDK\uiPolicyApi.SDK.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="MediatR" Version="14.0.0" />
+    </ItemGroup>
+
 </Project>

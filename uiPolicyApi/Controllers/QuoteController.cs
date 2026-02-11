@@ -1,7 +1,7 @@
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using uiPolicyApi.SDK.Models;
+using uiPolicyApi.SDK.Commands;
 using uiPolicyApi.SDK.Models.Quote;
-using uiPolicyApi.SDK.Services;
 
 namespace uiPolicyApi.Controllers;
 
@@ -9,17 +9,17 @@ namespace uiPolicyApi.Controllers;
 [Route("[controller]")]
 public class QuoteController : ControllerBase
 {
-    private readonly IQuoteService _quoteService;
+    private readonly IMediator _mediator;
 
-    public QuoteController(IQuoteService quoteService)
+    public QuoteController(IMediator mediator)
     {
-        _quoteService = quoteService;
+        _mediator = mediator;
     }
     
     [HttpPost]
     public async Task<IActionResult> CreateQuote(QuoteRequestModel quoteRequest)
     {
-        var quoteResult = await _quoteService.CreateQuoteAsync(quoteRequest);
+        var quoteResult = await _mediator.Send(new CreateQuoteCommand(quoteRequest));
         if (quoteResult.Success)
         {
             return Ok(quoteResult.Result);

@@ -1,6 +1,7 @@
 namespace uiPolicyApi.Data.Repositories;
 
-public class IQuoteRepository
+public interface IQuoteRepository
 {
-    
+    // Add methods as needed for quote operations
 }
+
